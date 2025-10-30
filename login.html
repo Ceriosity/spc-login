@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Login Redirect</title>
+<style>
+  body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f5f7fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background: #fff;
+    padding: 24px 28px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    width: 320px;
+    text-align: center;
+  }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 0;
+    background: #1a73e8;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  button:hover { background: #1765c1; }
+  p { font-size: 13px; color: #555; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2 style="margin-top:0;">User Login</h2>
+  <input id="username" type="text" placeholder="Username" autocomplete="username">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="loginBtn">Login</button>
+  <p id="status">Loading user list...</p>
+</div>
+
+<script>
+(async function(){
+  const sheetURL = "https://script.google.com/macros/s/AKfycbyHRfAyZ6zA40bkmmXcrQ7XaPH-dq5z_0DfiIdA0IBHFMPrT28CiADhVBWfTqXYCzA1/exec";
+
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loginBtn = document.getElementById('loginBtn');
+  const status = document.getElementById('status');
+
+  let userData = {};
+
+  async function loadSheet() {
+    try {
+      const res = await fetch(sheetURL);
+      const data = await res.json();
+
+      data.forEach(row => {
+        const username = row.Username?.trim().toLowerCase();
+        const password = row.Password?.trim();
+        const url = row.URL?.trim();
+        if(username && password && url) userData[username] = { password, url };
+      });
+
+      status.textContent = "✅ User list loaded.";
+    } catch (e) {
+      console.error(e);
+      status.textContent = "⚠️ Could not load user list.";
+    }
+  }
+
+  loginBtn.onclick = function() {
+    const name = usernameInput.value.trim().toLowerCase();
+    const pass = passwordInput.value.trim();
+
+    if(!name || !pass) {
+      alert("Please enter both username and password.");
+      return;
+    }
+
+    const user = userData[name];
+    if(!user) {
+      alert("Username not found.");
+      return;
+    }
+
+    if(user.password === pass) {
+      window.location.href = user.url;
+    } else {
+      alert("Incorrect password.");
+    }
+  };
+
+  // Enter key navigation
+  usernameInput.addEventListener("keydown", e => { if(e.key==="Enter") passwordInput.focus(); });
+  passwordInput.addEventListener("keydown", e => { if(e.key==="Enter") loginBtn.click(); });
+
+  await loadSheet();
+})();
+</script>
+
+</body>
+</html>
