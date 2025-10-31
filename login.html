@@ -71,10 +71,14 @@
       const data = await res.json();
 
       data.forEach(row => {
-        const username = row.Username?.trim().toLowerCase();
-        const password = row.Password?.trim();
-        const url = row.URL?.trim();
-        if(username && password && url) userData[username] = { password, url };
+        // Ensure each field is converted safely to string
+        const username = String(row.Username || "").trim().toLowerCase();
+        const password = String(row.Password || "").trim();
+        const url = String(row.URL || "").trim();
+
+        if (username && password && url) {
+          userData[username] = { password, url };
+        }
       });
 
       status.textContent = "✅ User list loaded.";
@@ -88,27 +92,27 @@
     const name = usernameInput.value.trim().toLowerCase();
     const pass = passwordInput.value.trim();
 
-    if(!name || !pass) {
+    if (!name || !pass) {
       alert("Please enter both username and password.");
       return;
     }
 
     const user = userData[name];
-    if(!user) {
+    if (!user) {
       alert("Username not found.");
       return;
     }
 
-    if(user.password === pass) {
+    if (user.password === pass) {
       window.location.href = user.url;
     } else {
       alert("Incorrect password.");
     }
   };
 
-  // Enter key navigation
-  usernameInput.addEventListener("keydown", e => { if(e.key==="Enter") passwordInput.focus(); });
-  passwordInput.addEventListener("keydown", e => { if(e.key==="Enter") loginBtn.click(); });
+  // Allow Enter key
+  usernameInput.addEventListener("keydown", e => { if (e.key === "Enter") passwordInput.focus(); });
+  passwordInput.addEventListener("keydown", e => { if (e.key === "Enter") loginBtn.click(); });
 
   await loadSheet();
 })();
