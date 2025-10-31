@@ -71,7 +71,6 @@
       const data = await res.json();
 
       data.forEach(row => {
-        // Ensure each field is converted safely to string
         const username = String(row.Username || "").trim().toLowerCase();
         const password = String(row.Password || "").trim();
         const url = String(row.URL || "").trim();
@@ -104,7 +103,8 @@
     }
 
     if (user.password === pass) {
-      window.location.href = user.url;
+      // ✅ Opens link in a new tab
+      window.open(user.url, "_blank");
     } else {
       alert("Incorrect password.");
     }
